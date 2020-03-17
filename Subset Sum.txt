@@ -33,4 +33,6 @@ int main()
 
     memset(DP,0,sizeof(DP));
     cout << SubsetSum(arr,sum,n);
+    
+    delete []arr;
 }
