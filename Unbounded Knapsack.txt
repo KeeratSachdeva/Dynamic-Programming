@@ -1,0 +1,74 @@
+# include<iostream>
+# include<cstring>
+using namespace std;
+
+int KnapsackUnbounded(int* weights,int* values,int W,int n)
+{
+    // Base Case
+    if(n == 0 || W == 0) return 0;
+
+    // Choice Diagram
+    if(weights[n-1] <= W)
+    {
+        int notIncluded = KnapsackUnbounded(weights,values,W,n-1);
+        // How many times should we include this item?
+        int included = values[n-1] + KnapsackUnbounded(weights,values,W-weights[n-1],n); // We will come back at this item again but with reduced capacity of Knapsack
+        return max(notIncluded,included);
+    }
+    else return KnapsackUnbounded(weights,values,W,n-1);
+}
+
+int DP[1000][1000]; //[n+1][W+1]
+
+int KnapsackUnboundedMemoization(int* weights,int* values,int W,int n)
+{
+    if(n == 0 || W == 0) return 0;
+    if(DP[n][W] != -1) return DP[n][W];
+
+    if(weights[n-1] <= W)
+    {
+        DP[n][W] = max(values[n-1] + KnapsackUnboundedMemoization(weights,values,W-weights[n-1],n),KnapsackUnboundedMemoization(weights,values,W,n-1));
+        return DP[n][W];
+    }
+
+    DP[n][W] = KnapsackUnboundedMemoization(weights,values,W,n-1);
+    return DP[n][W];
+}
+
+int KnapsackUnboundedTopDown(int* weights,int* values,int W,int n)
+{
+    // Initialization
+    for(int i=0;i<n+1;i++) DP[i][0] = 0;
+    for(int j=1;j<W+1;j++) DP[0][j] = 0;
+
+    for(int i=1;i<n+1;i++)
+    {
+        for(int j=1;j<W+1;j++)
+        {
+            if(weights[i-1] <= j) DP[i][j] = max(values[i-1] + DP[i][j-weights[i-1]],DP[i-1][j]);
+            else DP[i][j] = DP[i-1][j];
+        }
+    }
+
+    return DP[n][W];
+}
+
+int main()
+{
+    int n,W;
+    cin >> n >> W;
+    int* weights = new int[n];
+    int* values = new int[n];
+
+    for(int i=0;i<n;i++) cin >> weights[i];
+    for(int i=0;i<n;i++) cin >> values[i];
+
+    cout << KnapsackUnbounded(weights,values,W,n) << endl;
+    memset(DP,-1,sizeof(DP));
+    cout << KnapsackUnboundedMemoization(weights,values,W,n) << endl;
+    memset(DP,-1,sizeof(DP));
+    cout << KnapsackUnboundedTopDown(weights,values,W,n) << endl;
+
+    delete []weights;
+    delete []values;
+}
