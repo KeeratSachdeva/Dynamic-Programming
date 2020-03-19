@@ -1,0 +1,43 @@
+# include<iostream>
+# include<cstring>
+using namespace std;
+
+int DP[100][100]; //
+
+int CountSubsetSum(int* arr,int sum,int n)
+{
+    for(int i=0;i<n+1;i++) DP[i][0] = 1;
+    for(int j=1;j<sum+1;j++) DP[0][j] = 0;
+
+    for(int i=1;i<n+1;i++)
+    {
+        for(int j=1;j<sum+1;j++)
+        {
+            if(arr[i-1] <= j) DP[i][j] = DP[i-1][j-arr[i-1]] + DP[i-1][j];
+            else DP[i][j] = DP[i-1][j];
+        }
+    }
+
+    return DP[n][sum];
+}
+
+int CountSubsetDiff(int* arr,int diff,int n)
+{
+    int sum = 0;
+    for(int i=0;i<n;i++) sum += arr[i];
+
+    return CountSubsetSum(arr,(diff + sum)/2,n);
+}
+
+int main()
+{
+    int n,diff;
+    cin >> n >> diff;
+
+    int* arr = new int[n];
+    for(int i=0;i<n;i++) cin >> arr[i];
+
+    cout << CountSubsetDiff(arr,diff,n);
+
+    delete []arr;
+}
